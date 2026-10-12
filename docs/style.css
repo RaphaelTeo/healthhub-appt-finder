@@ -7,6 +7,7 @@
   --line: #e1e6ed;
   --accent: #0f766e;
   --accent-soft: #e3f4f1;
+  --land: #e4e9ef;
   --on-accent: #fff;
   --warn-bg: #fef3c7;
   --warn-text: #78350f;
@@ -21,6 +22,7 @@
     --line: #2b3440;
     --accent: #2dd4bf;
     --accent-soft: #11312e;
+    --land: #252d38;
     --on-accent: #062a26;
     --warn-bg: #3b2f0b;
     --warn-text: #fde68a;
@@ -236,6 +238,103 @@ p {
   accent-color: var(--accent);
 }
 
+.map {
+  position: relative;
+  margin: 12px 0 8px;
+}
+
+.map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.towns path {
+  fill: var(--land);
+  stroke: var(--surface);
+  stroke-linejoin: round;
+}
+
+.towns path.current {
+  fill: color-mix(in srgb, var(--accent) 30%, var(--land));
+}
+
+.town-names text {
+  fill: var(--muted);
+  font-size: 8.5px;
+  font-weight: 600;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--land);
+  stroke-width: 2.5px;
+  pointer-events: none;
+}
+
+.pin {
+  r: 5.5px;
+  fill: var(--surface);
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  opacity: 0.6;
+  outline: none;
+}
+
+.pin.offered {
+  stroke: var(--accent);
+  opacity: 1;
+  cursor: pointer;
+}
+
+.pin.ticked {
+  r: 8px;
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.pin:hover,
+.pin:focus-visible {
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+
+.map-details {
+  --shift-x: -50%;
+  --shift-y: calc(-100% - 14px);
+  position: absolute;
+  top: var(--pin-y);
+  left: var(--pin-x);
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  width: max-content;
+  max-width: min(300px, 78vw);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--surface);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  pointer-events: none;
+  transform: translate(var(--shift-x), var(--shift-y));
+}
+
+.map-details.opens-right {
+  --shift-x: -16px;
+}
+
+.map-details.opens-left {
+  --shift-x: calc(-100% + 16px);
+}
+
+.map-details.opens-down {
+  --shift-y: 14px;
+}
+
+.map-details strong {
+  font-size: 0.9rem;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -393,6 +492,23 @@ kbd {
 }
 
 @media (max-width: 520px) {
+  .town-names {
+    display: none;
+  }
+
+  .map-details[class] {
+    --shift-x: -50%;
+    left: 50%;
+  }
+
+  .pin {
+    r: 8px;
+  }
+
+  .pin.ticked {
+    r: 12px;
+  }
+
   .card {
     padding: 18px;
   }

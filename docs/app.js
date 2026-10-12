@@ -18,9 +18,17 @@ const monthList = document.getElementById('months');
 const summary = document.getElementById('summary');
 const bookmarklet = document.getElementById('bookmarklet');
 const bookmarkHint = document.getElementById('bookmark-hint');
+const map = document.getElementById('map');
 
 function el(tag, properties, ...children) {
   const element = Object.assign(document.createElement(tag), properties);
+  element.append(...children);
+  return element;
+}
+
+function svg(tag, attributes, ...children) {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, value);
   element.append(...children);
   return element;
 }
@@ -54,6 +62,80 @@ function showLocations(selected) {
   locationList.replaceChildren(...offered.map((name) => option('option', 'location', name, name, selected.includes(name))));
 }
 
+// --- map ---------------------------------------------------------------------
+
+const townShapes = new Map(SINGAPORE_MAP.towns.map((town) => [town.name, svg('path', {d: town.path})]));
+const pins = new Map(Object.entries(POLYCLINICS).map(([name, clinic]) => [name, svg('circle', {
+  class: 'pin',
+  cx: (clinic.lng - SINGAPORE_MAP.west) * SINGAPORE_MAP.scaleX,
+  cy: (SINGAPORE_MAP.north - clinic.lat) * SINGAPORE_MAP.scaleY,
+  tabindex: 0,
+  role: 'button',
+  'aria-label': name,
+})]));
+const details = el('div', {className: 'map-details', hidden: true});
+
+function drawMap() {
+  const polyclinicTowns = new Set(Object.values(POLYCLINICS).map((clinic) => clinic.town));
+  map.append(
+    svg('svg', {viewBox: `0 0 ${SINGAPORE_MAP.width} ${SINGAPORE_MAP.height}`, role: 'group', 'aria-label': 'Map of polyclinics'},
+      svg('g', {class: 'towns'}, ...townShapes.values()),
+      svg('g', {class: 'town-names'}, ...SINGAPORE_MAP.towns.filter((town) => polyclinicTowns.has(town.name))
+        .map((town) => svg('text', {x: town.x, y: town.y}, town.name))),
+      svg('g', {}, ...pins.values())),
+    details);
+  for (const [name, pin] of pins) {
+    pin.addEventListener('pointerenter', () => showDetails(name));
+    pin.addEventListener('focus', () => showDetails(name));
+    pin.addEventListener('pointerleave', () => hideDetails(name));
+    pin.addEventListener('blur', () => hideDetails(name));
+    pin.addEventListener('click', () => tickPolyclinic(name));
+    pin.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      tickPolyclinic(name);
+    });
+  }
+}
+
+// The polyclinic's details beside its pin, opening towards the middle of the map.
+function showDetails(name) {
+  const clinic = POLYCLINICS[name];
+  const x = pins.get(name).cx.baseVal.value / SINGAPORE_MAP.width;
+  const y = pins.get(name).cy.baseVal.value / SINGAPORE_MAP.height;
+  details.replaceChildren(
+    el('strong', {textContent: name}),
+    el('span', {textContent: `${clinic.town} · ${clinic.network}`}),
+    el('span', {textContent: clinic.address}),
+    ...POLYCLINIC_HOURS[clinic.network].map((hours) => el('span', {textContent: hours})));
+  details.className = `map-details ${x < 0.35 ? 'opens-right' : x > 0.65 ? 'opens-left' : ''} ${y < 0.45 ? 'opens-down' : ''}`;
+  details.style.setProperty('--pin-x', `${x * 100}%`);
+  details.style.setProperty('--pin-y', `${y * 100}%`);
+  details.hidden = false;
+  townShapes.get(clinic.town).classList.add('current');
+}
+
+function hideDetails(name) {
+  details.hidden = true;
+  townShapes.get(POLYCLINICS[name].town).classList.remove('current');
+}
+
+function tickPolyclinic(name) {
+  const box = [...locationList.querySelectorAll('input')].find((input) => input.value === name);
+  if (box) box.click();
+}
+
+// Marks the pins of the polyclinics on offer and of those ticked, the latter drawn on top.
+function showPins() {
+  const offered = [...locationList.querySelectorAll('input')].map((input) => input.value);
+  const ticked = checked('location');
+  for (const [name, pin] of pins) {
+    pin.classList.toggle('offered', offered.includes(name));
+    pin.classList.toggle('ticked', ticked.includes(name));
+    if (ticked.includes(name) && pin.nextSibling) pin.parentNode.append(pin);
+  }
+}
+
 function bookmarkletUrl(config) {
   // Indentation and comments would only add weight to the bookmark.
   const source = healthhubSlotFinder.toString().split('\n').map((line) => line.trim())
@@ -62,6 +144,7 @@ function bookmarkletUrl(config) {
 }
 
 function update() {
+  showPins();
   const types = checked('type');
   const locations = checked('location');
   const months = checked('month').map(Number);
@@ -90,6 +173,7 @@ typeList.append(...APPOINTMENT_GROUPS.map((group) => el('div', {className: 'grou
   ...group.types.map(typeOption))));
 monthList.append(...Array.from({length: MONTH_CHOICES}, (_, offset) => option(
   'chip', 'month', offset, offset ? monthLabel(offset) : `This month (${monthLabel(0)})`, DEFAULT_MONTHS.includes(offset))));
+drawMap();
 showLocations(DEFAULT_LOCATIONS);
 update();
 // Bring the ticked appointment type into view inside its scroll box.
