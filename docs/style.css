@@ -33,6 +33,11 @@
   box-sizing: border-box;
 }
 
+/* Text grows a little on large monitors, and everything sized in rem with it. */
+html {
+  font-size: clamp(100%, 0.875rem + 0.14vw, 112.5%);
+}
+
 [hidden] {
   display: none !important;
 }
@@ -41,7 +46,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 1rem/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 main {
@@ -452,10 +457,13 @@ kbd {
 .notes ul {
   margin: 0;
   padding-left: 1.2em;
+  columns: 2 26rem;
+  column-gap: 40px;
 }
 
 .notes li {
   margin-bottom: 6px;
+  break-inside: avoid;
 }
 
 footer {
@@ -467,6 +475,13 @@ footer {
 }
 
 /* --- results -------------------------------------------------------------- */
+
+/* Polyclinics sit side by side where the window has room for them. */
+.clinics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+  column-gap: 32px;
+}
 
 .clinic {
   margin-top: 20px;
@@ -539,5 +554,60 @@ footer {
 
   .day {
     grid-template-columns: 1fr;
+  }
+}
+
+/* --- wide windows --------------------------------------------------------- */
+
+/* The page stays one column of cards, which widen with the window; what is
+   inside each card spreads sideways so the cards do not just grow taller. */
+@media (min-width: 960px) {
+  main {
+    max-width: 84rem;
+    padding-inline: clamp(24px, 4vw, 64px);
+  }
+
+  .assurance {
+    max-width: none;
+  }
+
+  .filter {
+    max-width: 26rem;
+  }
+
+  /* Every appointment type on show, in as many columns as fit. */
+  .scroll {
+    max-height: none;
+    padding: 0 12px 12px;
+    columns: 15rem;
+    column-gap: 16px;
+  }
+
+  /* Padding, unlike the heading's margin, survives at the top of a column. */
+  .group {
+    padding-top: 14px;
+  }
+
+  .group h3 {
+    margin-top: 0;
+    break-after: avoid;
+  }
+
+  .option {
+    break-inside: avoid;
+  }
+
+  .map {
+    max-width: 50rem;
+    margin-inline: auto;
+  }
+
+  .how {
+    columns: 2;
+    column-gap: 40px;
+  }
+
+  .how li {
+    break-inside: avoid;
   }
 }

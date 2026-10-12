@@ -44,7 +44,7 @@ function typeCard(type) {
   } else {
     card.append(el('p', {className: 'hint', textContent: 'No open slots found.'}));
   }
-  card.append(...open.map(clinic));
+  if (open.length) card.append(el('div', {className: 'clinics'}, ...open.map(clinic)));
   if (empty.length) card.append(el('p', {className: 'rest', textContent: `No slots: ${empty.map((location) => location.name).join(', ')}.`}));
   if (unchecked.length) {
     card.append(el('p', {className: 'rest', textContent: `Not searched: ${unchecked.map((location) => `${location.name} (${location.note})`).join('; ')}.`}));
