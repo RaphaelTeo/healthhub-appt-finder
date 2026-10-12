@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HealthHub slot finder</title>
+  <meta name="description" content="Builds a bookmark that lists every open polyclinic appointment slot on HealthHub for the appointment types, polyclinics and months you pick.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗓️</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Unofficial tool</p>
+      <h1>Find open polyclinic slots on HealthHub</h1>
+      <p class="lede">Tick what you are looking for and this page builds a bookmark. Click it on HealthHub's booking page and it checks every polyclinic and date for you, then lists the open slots.</p>
+    </header>
+
+    <div class="steps">
+      <section class="card">
+        <h2>Appointment type</h2>
+        <p class="hint">Tick one or more.</p>
+        <input class="filter" id="type-filter" type="search" placeholder="Filter appointment types" aria-label="Filter appointment types">
+        <div class="scroll" id="types"></div>
+      </section>
+
+      <section class="card">
+        <h2>Polyclinics</h2>
+        <p class="hint">Tick the ones you would go to, or leave them all unticked to search every polyclinic that offers the appointment.
+          <button class="text-button" id="clear-locations" type="button">Untick all</button></p>
+        <div class="grid" id="locations"></div>
+      </section>
+
+      <section class="card">
+        <h2>Months</h2>
+        <p class="hint">Counted from the day you use the bookmark, so it keeps working in the months to come.</p>
+        <div class="chips" id="months"></div>
+      </section>
+
+      <section class="card">
+        <h2>Your bookmark</h2>
+        <p class="summary" id="summary" aria-live="polite"></p>
+        <div class="bookmark">
+          <a class="bookmarklet" id="bookmarklet">HealthHub slots</a>
+          <span class="hint" id="bookmark-hint">Drag this button onto your bookmarks bar, or
+            <button class="text-button" id="copy" type="button">copy its code</button>.</span>
+        </div>
+        <ol class="how">
+          <li>Drag the button above onto your bookmarks bar. Press <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>B</kbd> (<kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>B</kbd> on a Mac) if the bar is hidden. If you copied the code instead, add a new bookmark and paste the code as its address.</li>
+          <li>Open <a href="https://eservices.healthhub.sg/appointments/make-new/book-polyclinic" target="_blank" rel="noopener">HealthHub's polyclinic booking page</a> and log in with Singpass.</li>
+          <li>Click the bookmark. A panel appears over the page and shows the search as it goes. Keep that tab open and in front until it finishes: the search stalls in a background tab.</li>
+          <li>The open slots are then shown in a new tab. If your browser blocks it, click “Open results” in the panel.</li>
+        </ol>
+      </section>
+    </div>
+
+    <section class="notes">
+      <ul>
+        <li>It only looks. It never selects a slot, and never books, changes or cancels anything.</li>
+        <li>It runs entirely in your browser. The bookmark carries all of its own code and sends nothing anywhere; the slots it finds travel to the results page inside the link itself.</li>
+        <li>Some appointments ask a question before showing slots, for example about your symptoms. The panel then asks you to answer it on the page.</li>
+        <li>Each bookmark keeps the options it was made with. To change them, change them here and drag the button again.</li>
+        <li>Not affiliated with HealthHub or the Ministry of Health. It may stop working whenever HealthHub changes its booking page.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="options.js"></script>
+  <script src="finder.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
