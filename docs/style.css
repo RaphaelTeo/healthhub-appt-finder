@@ -94,6 +94,16 @@ p {
   font-size: 1.1rem;
 }
 
+.assurance {
+  max-width: 60ch;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  background: var(--accent-soft);
+  font-size: 0.95rem;
+}
+
 .hint {
   color: var(--muted);
   font-size: 0.9rem;
@@ -446,6 +456,14 @@ kbd {
 
 .notes li {
   margin-bottom: 6px;
+}
+
+footer {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 /* --- results -------------------------------------------------------------- */
