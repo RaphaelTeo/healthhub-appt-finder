@@ -1,0 +1,74 @@
+# Appointment type to search for (must match the site's wording; case-insensitive).
+# Available options:
+#   Doctor Consultation
+#     - Doctor Consultation
+#   Healthier SG
+#     - Health Plan Discussion
+#     - Healthier@SG Consult
+#   Video Consultation (via Zoom) For patients age 18 and above only
+#     - Doctor Consult for General Conditions (SingHealth Polyclinics)
+#     - Chronic Conditions and Family Planning Follow-up
+#   Nursing
+#     - Adult Vaccination (Excludes Flu Vaccination)
+#     - Vaccination Clinic (7 years and above)
+#     - Postnatal Care
+#     - Advanced Practice Nurse (For Existing APN Patients)
+#     - Child Vaccination (Age 6 Months to 17 Years)
+#     - COVID Vaccination (Age 12 Years & above)
+#     - COVID Vaccination (Age 5 to 11 Years)
+#     - COVID Vaccination (Age 6 Months to 4 Years)
+#     - Dressing
+#     - Flu Vaccination
+#   Screening
+#     - Cervical Cancer Screening
+#     - Bone Mineral Densitometry (BMD)
+#     - Childhood Developmental Screening
+#     - Driving Licence Medical Examination
+#     - Diabetic Eye Screening
+#     - Foot Screening for Diabetes Patients
+#     - Mammogram Screening
+#     - Assessment for Mobility Scooter
+#     - Ultrasound
+#     - Spirometry
+#   Antenatal and Children's Health
+#     - Antenatal Care
+#     - Lactation Support Service
+#     - Newborn Jaundice Screening
+#   Allied Health
+#     - Financial Counselling
+#     - Medical Social Service
+#     - Physiotherapy Service
+#   Dental
+#     - Dental Cleaning (Scaling & Polishing)
+#   Allied Health Led Preventive Health
+#     - Advance Care Planning
+#     - New Weight New Me
+appointment_type: "Dental Cleaning (Scaling & Polishing)"
+
+# Polyclinics to search. Leave empty ([]) to search every location that offers
+# the appointment type.
+# Available options for "Dental Cleaning (Scaling & Polishing)" (the site only
+# lists polyclinics offering the chosen appointment type, so other types differ;
+# an unrecognised name makes the tool print the valid list):
+#   - Ang Mo Kio Polyclinic
+#   - Bedok Polyclinic
+#   - Bukit Panjang Polyclinic
+#   - Eunos Polyclinic
+#   - Geylang Polyclinic
+#   - Hougang Polyclinic
+#   - Jurong Polyclinic
+#   - Khatib Polyclinic
+#   - Pasir Ris Polyclinic
+#   - Punggol Polyclinic
+#   - Queenstown Polyclinic
+#   - Serangoon Polyclinic
+#   - Tampines Polyclinic
+#   - Toa Payoh Polyclinic
+#   - Woodlands Polyclinic
+locations:
+  - "Serangoon Polyclinic"
+
+# How many months ahead to search, counted from the current month.
+# The search runs from today to the last day of that month
+# (e.g. run on 12 Oct with months_out: 2 -> searches up to 31 Dec).
+months_out: 2
