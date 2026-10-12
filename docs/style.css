@@ -433,6 +433,12 @@ kbd {
   font-size: 0.9rem;
 }
 
+.notes h2 {
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
 .notes ul {
   margin: 0;
   padding-left: 1.2em;

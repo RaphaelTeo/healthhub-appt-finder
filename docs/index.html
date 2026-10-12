@@ -29,7 +29,7 @@
         <p class="hint">Tick the ones you would go to, or leave them all unticked to search every polyclinic that offers the appointment.
           <button class="text-button" id="clear-locations" type="button">Untick all</button></p>
         <div class="map" id="map"></div>
-        <p class="hint">Hover over a pin for the polyclinic's address and opening hours, or click it to tick the polyclinic. Faded pins do not offer the ticked appointment types.</p>
+        <p class="hint">Hover over a pin for the polyclinic's address and opening hours, or click it to tick the polyclinic. Faded pins do not offer the ticked appointment types. <a href="#map-notes">Where the map's details come from</a>.</p>
         <div class="grid" id="locations"></div>
       </section>
 
@@ -62,8 +62,16 @@
         <li>It runs entirely in your browser. The bookmark carries all of its own code and sends nothing anywhere; the slots it finds travel to the results page inside the link itself.</li>
         <li>Some appointments ask a question before showing slots, for example about your symptoms. The panel then asks you to answer it on the page.</li>
         <li>Each bookmark keeps the options it was made with. To change them, change them here and drag the button again.</li>
-        <li>Addresses and opening hours are as published on the NHG Polyclinics, SingHealth Polyclinics and National University Polyclinics websites on 12 Oct 2026; check with the polyclinic before you go. The map contains information from URA's Master Plan 2019 Planning Area Boundary (No Sea), accessed on 12 Oct 2026 from data.gov.sg, which is made available under the terms of the <a href="https://data.gov.sg/open-data-licence">Singapore Open Data Licence version 1.0</a>.</li>
         <li>Not affiliated with HealthHub or the Ministry of Health. It may stop working whenever HealthHub changes its booking page.</li>
+      </ul>
+    </section>
+
+    <section class="notes" id="map-notes">
+      <h2>About the map</h2>
+      <ul>
+        <li>Addresses and opening hours are as published on the <a href="https://www.nhghealth.com.sg/" target="_blank" rel="noopener">NHG Polyclinics</a>, <a href="https://polyclinic.singhealth.com.sg/our-polyclinics" target="_blank" rel="noopener">SingHealth Polyclinics</a> and <a href="https://www.nup.com.sg/our-clinics" target="_blank" rel="noopener">National University Polyclinics</a> websites on 12 Oct 2026. Each network publishes the same hours for all its polyclinics, so every polyclinic in a network shows the same hours here. Check with the polyclinic before you go.</li>
+        <li>Positions come from OneMap. The town outlines contain information from URA's Master Plan 2019 Planning Area Boundary (No Sea), accessed on 12 Oct 2026 from data.gov.sg, which is made available under the terms of the <a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noopener">Singapore Open Data Licence version 1.0</a>.</li>
+        <li>“Town” is the URA planning area, so a few differ from the polyclinic's name: Khatib Polyclinic is in Yishun, Eunos in Bedok, Outram in Bukit Merah, Pioneer in Jurong West, Jurong in Jurong East, and Tampines North in Tampines.</li>
       </ul>
     </section>
   </main>
