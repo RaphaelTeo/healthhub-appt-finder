@@ -15,6 +15,7 @@ function healthhubSlotFinder(config) {
   const PANEL_ID = 'healthhub-slot-finder';
 
   const ACTION_TIMEOUT_MS = 45000;
+  const LOGIN_TIMEOUT_MS = 60000;
   const MANUAL_STEP_TIMEOUT_MS = 180000;
   const POLL_MS = 250;
   // Picking a date makes the site answer with the *closest* slots on or after it,
@@ -23,6 +24,8 @@ function healthhubSlotFinder(config) {
   // move on by this many days. Set to 1 to query every single date.
   const EMPTY_RESULT_STEP_DAYS = 7;
   const MAX_SLOT_PAGES = 50;
+  // How many slot searches to time before saying when the rest will be done.
+  const ESTIMATE_AFTER_SEARCHES = 3;
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const KEEP_TAB_OPEN = 'Keep this tab open and in front until the search finishes. '
     + 'Switching tabs or minimising the window stalls it.';
@@ -94,6 +97,9 @@ function healthhubSlotFinder(config) {
   const ranges = searchRanges(config.months, singaporeNow().slice(0, 10));
   const totalDays = ranges.reduce((sum, [start, end]) => sum + daysBetween(start, end) + 1, 0);
   const report = [];
+  // Set once the booking form shows, which it only does when logged in.
+  let startedAt = 0;
+  let searchesDone = 0;
 
   // --- panel -------------------------------------------------------------------
 
@@ -140,6 +146,7 @@ function healthhubSlotFinder(config) {
   const reminder = el('p', {className: 'reminder', textContent: KEEP_TAB_OPEN});
   const bar = el('div', {className: 'bar'});
   const activity = el('p', {className: 'activity'});
+  const estimate = el('p', {className: 'activity', hidden: true});
   const list = el('div', {className: 'list'});
   // Keeps stray clicks off the form while it is being worked.
   const shield = el('div', {className: 'shield'});
@@ -151,7 +158,7 @@ function healthhubSlotFinder(config) {
     el('style', {textContent: CSS}),
     shield,
     el('section', {className: 'panel'},
-      el('header', {}, title, reminder, el('div', {className: 'track'}, bar), activity),
+      el('header', {}, title, reminder, el('div', {className: 'track'}, bar), activity, estimate),
       list,
       el('footer', {}, stopButton, resultsLink, closeButton)));
   document.body.append(host);
@@ -164,6 +171,17 @@ function healthhubSlotFinder(config) {
   function showProgress(fraction, text) {
     bar.style.width = `${Math.round(fraction * 100)}%`;
     activity.textContent = text;
+    if (estimate.hidden && searchesDone >= ESTIMATE_AFTER_SEARCHES && fraction > 0) showEstimate(fraction);
+  }
+
+  // Assumes the rest of the search goes at the pace of the `fraction` done so far.
+  function showEstimate(fraction) {
+    const remainingMs = (Date.now() - startedAt) * (1 - fraction) / fraction;
+    const minutes = Math.max(1, Math.ceil(remainingMs / 60000));
+    const doneAt = new Date(Date.now() + minutes * 60000).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'});
+    console.log(`Estimated time: ${minutes} minute${minutes > 1 ? 's' : ''}, come back at ${doneAt}`);
+    estimate.textContent = `Should be done at about ${doneAt}.`;
+    estimate.hidden = false;
   }
 
   // Hands the page over to the user for a question only they can answer.
@@ -225,14 +243,14 @@ function healthhubSlotFinder(config) {
 
   const onBookingForm = () => location.pathname.replace(/\/$/, '') === BOOKING_PATH;
 
-  async function goToBookingForm() {
+  async function goToBookingForm(timeoutMs) {
     if (!onBookingForm()) {
       // A client-side navigation: loading the URL instead would end this script.
       history.pushState(null, '', BOOKING_PATH);
       dispatchEvent(new PopStateEvent('popstate'));
     }
     await need(() => onBookingForm() && document.querySelector('[data-testid="selection-component"]'),
-      'the booking form (are you logged in to HealthHub?)');
+      'the booking form (are you logged in to HealthHub?)', timeoutMs);
   }
 
   // Opens the picker page behind the booking form's Service Type / Location field.
@@ -356,6 +374,7 @@ function healthhubSlotFinder(config) {
       for (;;) {
         const queriedFrom = answer.start;
         const slots = await readSlots(answer, end);
+        searchesDone++;
         slots.filter((slot) => start <= slot.slice(0, 10) && slot.slice(0, 10) <= end).forEach((slot) => found.add(slot));
         entry.slots = [...found].sort();
 
@@ -415,7 +434,12 @@ function healthhubSlotFinder(config) {
   }
 
   async function run() {
-    await goToBookingForm();
+    // Leave the page usable until then, in case HealthHub wants a login first.
+    shield.hidden = true;
+    activity.textContent = 'Waiting for the booking form. Log in with Singpass if HealthHub asks you to.';
+    await goToBookingForm(LOGIN_TIMEOUT_MS);
+    shield.hidden = false;
+    startedAt = Date.now();
     for (const [typeIndex, name] of config.types.entries()) {
       const type = {name, locations: []};
       report.push(type);
@@ -442,14 +466,20 @@ function healthhubSlotFinder(config) {
     } else if (error instanceof Stopped) {
       title.textContent = 'Search stopped';
       reminder.textContent = `${summary} The search was stopped before it finished.`;
+    } else if (!startedAt) {
+      title.textContent = 'Log in, then run it again';
+      reminder.textContent = "HealthHub's booking form did not show up within a minute. "
+        + 'Log in with Singpass, wait for the booking page to load, then click the bookmark again.';
     } else {
       title.textContent = 'Search failed';
       reminder.textContent = `Something went wrong: ${error.message}`;
     }
     reminder.className = error && !(error instanceof Stopped) ? 'reminder help' : 'reminder done';
     activity.textContent = '';
-    shield.hidden = stopButton.hidden = true;
-    list.hidden = resultsLink.hidden = closeButton.hidden = false;
+    shield.hidden = stopButton.hidden = estimate.hidden = true;
+    closeButton.hidden = false;
+    // Nothing was searched if the booking form never showed.
+    list.hidden = resultsLink.hidden = !startedAt;
 
     // Passed in the URL fragment, which the browser keeps to itself.
     resultsLink.href = `${config.resultsUrl}#${encodeURIComponent(JSON.stringify({

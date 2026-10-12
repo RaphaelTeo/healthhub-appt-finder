@@ -11,6 +11,7 @@ It only reads slots: it never selects one or presses "Next".
 import argparse
 import calendar
 import json
+import math
 import re
 import sys
 import time
@@ -33,7 +34,7 @@ BOOKING_URL = "https://eservices.healthhub.sg/appointments/make-new/book-polycli
 HEALTHHUB_HOST = "eservices.healthhub.sg"
 SLOTS_API_PATH = "/appointments/slots"
 
-LOGIN_TIMEOUT_SECONDS = 300
+LOGIN_TIMEOUT_SECONDS = 60
 MANUAL_STEP_TIMEOUT_SECONDS = 180
 ACTION_TIMEOUT_MS = 45_000
 
@@ -43,6 +44,8 @@ ACTION_TIMEOUT_MS = 45_000
 # move on by this many days. Set to 1 to query every single date.
 EMPTY_RESULT_STEP_DAYS = 7
 MAX_SLOT_PAGES = 50
+# How many slot searches to time before saying when the rest will be done.
+ESTIMATE_AFTER_SEARCHES = 3
 
 DEFAULT_CONFIG = {
     "appointment_type": "Dental Cleaning (Scaling & Polishing)",
@@ -136,7 +139,8 @@ def login(page: Page, timeout_seconds: int = LOGIN_TIMEOUT_SECONDS) -> None:
     print(f"Scan the QR code in the Chrome window with your Singpass app "
           f"(waiting up to {timeout_seconds}s)...")
     if not wait_until(page, lambda: logged_in(page), timeout_seconds):
-        sys.exit("Timed out waiting for Singpass login.")
+        sys.exit(f"Not logged in with Singpass after {timeout_seconds}s. Run the tool again "
+                 "and scan the QR code as soon as it shows.")
     print("Logged in.")
 
 
@@ -293,8 +297,32 @@ def read_slots(page: Page, response: Response, location: str, end: date) -> tupl
     return queried_from, slots
 
 
-def scan_location(page: Page, location: str, start: date, end: date) -> list[Slot]:
-    """All slots at `location` between `start` and `end`, walking the date picker."""
+class Estimate:
+    """Prints, once, when the search should be done, going by its first few slot searches."""
+
+    def __init__(self) -> None:
+        self.started = time.monotonic()
+        self.searches = 0
+        self.printed = False
+
+    def searched(self, fraction: float) -> None:
+        """Note one more slot search, after which `fraction` of the whole search is done."""
+        self.searches += 1
+        if self.printed or self.searches < ESTIMATE_AFTER_SEARCHES or fraction >= 1:
+            return
+        self.printed = True
+        # Assumes the rest goes at the pace of the part done so far.
+        remaining = (time.monotonic() - self.started) * (1 - fraction) / fraction
+        minutes = max(1, math.ceil(remaining / 60))
+        print(f"Estimated time: {minutes} minute{'s' if minutes > 1 else ''}, "
+              f"come back at {datetime.now() + timedelta(minutes=minutes):%I:%M %p}")
+
+
+def scan_location(page: Page, location: str, start: date, end: date, searched) -> list[Slot]:
+    """All slots at `location` between `start` and `end`, walking the date picker.
+
+    searched(fraction of the dates covered) is called after each slot search.
+    """
     found = set()
     response = select_location(page, location)
     if queried_date(response) > start:
@@ -316,6 +344,7 @@ def scan_location(page: Page, location: str, start: date, end: date) -> list[Slo
             next_day = slot_dates[-1]
         else:
             next_day = queried_from + timedelta(days=1)
+        searched(min(1, (next_day - start).days / ((end - start).days + 1)))
         if next_day > end:
             break
         response = pick_date(page, next_day)
@@ -332,7 +361,8 @@ def find_slots(page: Page, config: dict, start: date, end: date) -> list[Slot]:
 
     slots = []
     needs_reset = False
-    for location in locations:
+    estimate = Estimate()
+    for index, location in enumerate(locations):
         print(f"\n{location}")
         try:
             if needs_reset:
@@ -340,7 +370,8 @@ def find_slots(page: Page, config: dict, start: date, end: date) -> list[Slot]:
                 select_appointment_type(page, config["appointment_type"])
                 needs_reset = False
             open_location_picker(page)
-            slots += scan_location(page, location, start, end)
+            slots += scan_location(page, location, start, end, lambda fraction: estimate.searched(
+                (index + fraction) / len(locations)))
         except (PlaywrightError, SlotsApiError) as error:
             print(f"  ! skipped: {str(error).splitlines()[0]}")
             if urlparse(page.url).hostname != HEALTHHUB_HOST:
