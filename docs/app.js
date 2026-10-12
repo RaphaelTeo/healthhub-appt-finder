@@ -29,6 +29,14 @@ function option(className, name, value, label, checked) {
   return el('label', {className}, el('input', {type: 'checkbox', name, value, checked}), el('span', {textContent: label}));
 }
 
+function typeOption(type) {
+  const item = option('option', 'type', type.name, type.name, DEFAULT_TYPES.includes(type.name));
+  item.firstChild.disabled = !type.locations.length;
+  // The note is the button's label, which the stylesheet also shows as its tooltip.
+  if (type.note) item.append(el('button', {type: 'button', className: 'info', textContent: '!', ariaLabel: type.note}));
+  return item;
+}
+
 const checked = (name) => [...document.querySelectorAll(`input[name="${name}"]:checked`)].map((input) => input.value);
 
 const monthStart = (offset) => new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + offset, 1));
@@ -79,7 +87,7 @@ function update() {
 
 typeList.append(...APPOINTMENT_GROUPS.map((group) => el('div', {className: 'group'},
   el('h3', {textContent: group.name}),
-  ...group.types.map((type) => option('option', 'type', type.name, type.name, DEFAULT_TYPES.includes(type.name))))));
+  ...group.types.map(typeOption))));
 monthList.append(...Array.from({length: MONTH_CHOICES}, (_, offset) => option(
   'chip', 'month', offset, offset ? monthLabel(offset) : `This month (${monthLabel(0)})`, DEFAULT_MONTHS.includes(offset))));
 showLocations(DEFAULT_LOCATIONS);

@@ -1,7 +1,7 @@
 // Appointment types as grouped on HealthHub's "Select service type" page, each
 // with the polyclinics its "Select location" page offered on 12 Oct 2026.
-// Left out: "Doctor Consult for General Conditions (SingHealth Polyclinics)",
-// which has no location or date to search before its "Next" button.
+// A type with no polyclinics cannot be searched and is shown greyed out; a
+// `note` is shown as a tooltip beside the type.
 const polyclinics = (names) => names.split(', ').map((name) => `${name} Polyclinic`);
 
 const APPOINTMENT_GROUPS = [
@@ -11,6 +11,7 @@ const APPOINTMENT_GROUPS = [
       {
         name: "Doctor Consultation",
         locations: polyclinics("Ang Mo Kio, Bedok, Bukit Batok, Bukit Merah, Bukit Panjang, Choa Chu Kang, Clementi, Eunos, Geylang, Hougang, Jurong, Kallang, Khatib, Marine Parade, Outram, Pasir Ris, Pioneer, Punggol, Queenstown, Sembawang, Sengkang, Serangoon, Tampines North, Tampines, Tengah, Toa Payoh, Woodlands, Yishun"),
+        note: "Some polyclinics ask about your symptoms before showing slots. The panel then hands the page to you for up to 3 minutes, and skips that polyclinic if the question is left unanswered.",
       },
     ],
   },
@@ -30,6 +31,11 @@ const APPOINTMENT_GROUPS = [
   {
     name: "Video Consultation (via Zoom) For patients age 18 and above only",
     types: [
+      {
+        name: "Doctor Consult for General Conditions (SingHealth Polyclinics)",
+        locations: [],
+        note: "Cannot be searched: HealthHub offers no location or date to choose before its “Next” button, which this tool never presses.",
+      },
       {
         name: "Chronic Conditions and Family Planning Follow-up",
         locations: polyclinics("Bedok, Bukit Merah, Eunos, Marine Parade, Outram, Pasir Ris, Punggol, Sengkang, Tampines North, Tampines"),

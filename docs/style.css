@@ -169,6 +169,7 @@ p {
 }
 
 .option {
+  position: relative;
   display: flex;
   gap: 10px;
   align-items: flex-start;
@@ -179,6 +180,52 @@ p {
 
 .option:hover {
   background: var(--accent-soft);
+}
+
+.option:has(input:disabled) {
+  color: var(--muted);
+  cursor: default;
+}
+
+/* The "!" beside an option; its label doubles as the tooltip. */
+.info {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 20px;
+  cursor: help;
+}
+
+.info::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: 100%;
+  right: 8px;
+  left: 36px;
+  z-index: 1;
+  display: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.info:hover::after,
+.info:focus::after {
+  display: block;
 }
 
 .option input {
