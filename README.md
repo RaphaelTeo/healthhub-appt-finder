@@ -11,6 +11,8 @@ There are two ways to use it:
 - **[The bookmark](#the-bookmark)**, built at <https://raphaelteo.github.io/healthhub-appt-finder/>. Nothing to install.
 - **[The Python script](#the-python-script)**, which opens a Chrome window and runs the same search there, with the options kept in a file.
 
+The bookmark is the preferred way: it is the more thoroughly developed and tested of the two.
+
 ## The bookmark
 
 1. Open <https://raphaelteo.github.io/healthhub-appt-finder/> and tick the appointment types, polyclinics and months. The map shows where each polyclinic is; hover over a pin for its address and opening hours.
@@ -47,6 +49,10 @@ The script opens a Chrome window on HealthHub's booking page. Scan the Singpass 
 
 The Chrome window stays open afterwards, still logged in, so you can go on to book. The script ends when you close it.
 
+## Feedback
+
+If this tool helped you, I would appreciate it if you just click submit on [this form](https://forms.gle/4JW96S9wJqR1uezdA) to show it. Any comments or feedback are optional! The results page links to the same form.
+
 ## How it works
 
 The search is the bookmark's code, `docs/finder.js`, whichever way you start it. It works the booking form the way a person would: it picks the appointment type and the polyclinic, picks a date, and reads the slots HealthHub answers with.
@@ -61,7 +67,7 @@ Picking a date makes HealthHub answer with the closest slots on or after it, so 
 | `docs/finder.js` | The search itself. `docs/app.js` bakes the chosen options into it to make the bookmark. |
 | `docs/options.js` | The appointment types and the polyclinics offering each, as HealthHub listed them on 12 Oct 2026. |
 | `docs/polyclinics.js`, `docs/sgmap.js` | The map's polyclinics and town outlines. |
-| `docs/results.html` | The page the bookmark shows its results on. |
+| `docs/results.html` | The page the results are shown on, with the link to the feedback form. |
 | `healthhub_appt_finder.py`, `config.yaml` | The Python script, which runs `docs/finder.js` in a Chrome window, and its options. |
 
 ## Map data
