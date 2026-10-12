@@ -9,7 +9,7 @@ Unofficial: not affiliated with HealthHub or the Ministry of Health, and it may 
 There are two ways to use it:
 
 - **[The bookmark](#the-bookmark)**, built at <https://raphaelteo.github.io/healthhub-appt-finder/>. Nothing to install.
-- **[The Python script](#the-python-script)**, which drives a Chrome window on your computer.
+- **[The Python script](#the-python-script)**, which opens a Chrome window and runs the same search there, with the options kept in a file.
 
 ## The bookmark
 
@@ -41,13 +41,15 @@ python -m venv .venv
 .venv\Scripts\python healthhub_appt_finder.py
 ```
 
-Set the appointment type, the polyclinics and how many months ahead to search in [config.yaml](config.yaml), which lists the choices. Pass `--config` to use another file.
+Set the appointment types, the polyclinics and the months to search in [config.yaml](config.yaml), which lists the choices. They are the same options as on the website: one or more appointment types, any polyclinics or all of them, and any months. Pass `--config` to use another file.
 
-The script opens a Chrome window on HealthHub's booking page. Scan the Singpass QR code there within a minute; if you don't, the script stops and you run it again. It then searches each polyclinic, prints what it finds as it goes, and ends with the list of open slots. After the first three slot searches it prints `Estimated time: [x] minutes, come back at [y]`.
+The script opens a Chrome window on HealthHub's booking page. Scan the Singpass QR code there within a minute; if you don't, the script stops and you run it again. It then runs the bookmark's search in that window, so everything under [The bookmark](#the-bookmark) applies: the panel shows the search as it goes, and the open slots are shown in a new tab. The terminal gets the `Estimated time: [x] minutes, come back at [y]` line and, at the end, the same list of slots.
+
+The Chrome window stays open afterwards, still logged in, so you can go on to book. The script ends when you close it.
 
 ## How it works
 
-Both versions work the booking form the way a person would: they pick the appointment type and the polyclinic, pick a date, and read the slots HealthHub answers with.
+The search is the bookmark's code, `docs/finder.js`, whichever way you start it. It works the booking form the way a person would: it picks the appointment type and the polyclinic, picks a date, and reads the slots HealthHub answers with.
 
 Picking a date makes HealthHub answer with the closest slots on or after it, so most dates never need a search of their own. After an answer the next date searched is the last date it returned; after an empty answer, 7 days later.
 
@@ -56,11 +58,11 @@ Picking a date makes HealthHub answer with the closest slots on or after it, so 
 | Path | What it is |
 | --- | --- |
 | `docs/` | The GitHub Pages site, served as it is with no build step. |
-| `docs/finder.js` | The bookmark's code. `docs/app.js` bakes the chosen options into it. |
+| `docs/finder.js` | The search itself. `docs/app.js` bakes the chosen options into it to make the bookmark. |
 | `docs/options.js` | The appointment types and the polyclinics offering each, as HealthHub listed them on 12 Oct 2026. |
 | `docs/polyclinics.js`, `docs/sgmap.js` | The map's polyclinics and town outlines. |
 | `docs/results.html` | The page the bookmark shows its results on. |
-| `healthhub_appt_finder.py`, `config.yaml` | The Python script and its options. |
+| `healthhub_appt_finder.py`, `config.yaml` | The Python script, which runs `docs/finder.js` in a Chrome window, and its options. |
 
 ## Map data
 

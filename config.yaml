@@ -1,4 +1,8 @@
-# Appointment type to search for (must match the site's wording; case-insensitive).
+# These are the same options as on https://raphaelteo.github.io/healthhub-appt-finder/,
+# which also shows which polyclinics offer each appointment type.
+
+# Appointment types to search for, one or more (must match the site's wording;
+# case-insensitive).
 # Available options:
 #   Doctor Consultation
 #     - Doctor Consultation
@@ -7,6 +11,7 @@
 #     - Healthier@SG Consult
 #   Video Consultation (via Zoom) For patients age 18 and above only
 #     - Doctor Consult for General Conditions (SingHealth Polyclinics)
+#       (cannot be searched: it has no location or date to choose)
 #     - Chronic Conditions and Family Planning Follow-up
 #   Nursing
 #     - Adult Vaccination (Excludes Flu Vaccination)
@@ -43,13 +48,14 @@
 #   Allied Health Led Preventive Health
 #     - Advance Care Planning
 #     - New Weight New Me
-appointment_type: "Dental Cleaning (Scaling & Polishing)"
+appointment_types:
+  - "Dental Cleaning (Scaling & Polishing)"
 
-# Polyclinics to search. Leave empty ([]) to search every location that offers
+# Polyclinics to search. Leave empty ([]) to search every polyclinic that offers
 # the appointment type.
-# Available options for "Dental Cleaning (Scaling & Polishing)" (the site only
-# lists polyclinics offering the chosen appointment type, so other types differ;
-# an unrecognised name makes the tool print the valid list):
+# Available options for "Dental Cleaning (Scaling & Polishing)" (other types are
+# offered at other polyclinics; one that does not offer a type is reported as
+# "not offered for this appointment type"):
 #   - Ang Mo Kio Polyclinic
 #   - Bedok Polyclinic
 #   - Bukit Panjang Polyclinic
@@ -68,7 +74,7 @@ appointment_type: "Dental Cleaning (Scaling & Polishing)"
 locations:
   - "Serangoon Polyclinic"
 
-# How many months ahead to search, counted from the current month.
-# The search runs from today to the last day of that month
-# (e.g. run on 12 Oct with months_out: 2 -> searches up to 31 Dec).
-months_out: 2
+# Months to search, counted from the current month: 0 is this month (from
+# today), 1 is next month, and so on. They need not be next to each other
+# (e.g. run in Oct with [0, 2] -> searches the rest of Oct, and Dec).
+months: [0, 1, 2]
